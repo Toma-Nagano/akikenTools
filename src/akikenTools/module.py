@@ -205,9 +205,9 @@ def calc_RMSE_table(path: str, source: str | np.ndarray) -> pd.DataFrame:
         raise FileNotFoundError('The specified path does not exist.')
     if not os.path.isdir(path):
         raise ValueError('The specified path does not point to a directory.')
-    if isinstance(source, str):
-        source = cv2.imread(source)
     else:
+        if isinstance(source, str):
+            source = cv2.imread(source)
         image_list = []
         mse_list = []
         rmse_list = []
@@ -222,3 +222,33 @@ def calc_RMSE_table(path: str, source: str | np.ndarray) -> pd.DataFrame:
         RMSE_table = pd.DataFrame(
             {'FileName': image_list, 'MSE': mse_list, 'RMSE': rmse_list})
     return RMSE_table
+
+
+def get_RGB(img: str | np.ndarray, y: int, convert: bool = True) -> pd.DataFrame:
+    '''
+    Args:
+        img (str | numpy.ndarray): 画像ファイルのパスまたは数値データ
+        y (int): 取得する行の y 座標
+        convert (bool = True): BGR 型式から RGB 型式に変換するかどうか
+
+    Returns:
+        RGB_table (pandas.DataFrame): 特定行の RGB 値の表
+
+    Raises:
+        ValueError: The specified data is not in the proper format.
+            指定されたデータが適切な形式でない場合
+        ValueError: The specified y coordinate is out of range.
+            指定された y 座標が範囲外の場合
+    '''
+    if isinstance(img, str):
+        img = cv2.imread(img)
+    if img.ndim != 3 or img.shape[2] != 3:
+        raise ValueError('The specified data is not in the proper format.')
+    if y < 0 or y >= img.shape[0]:
+        raise ValueError('The specified y coordinate is out of range.')
+    else:
+        if convert:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        RGB_table = pd.DataFrame(img[y, :, :], columns=['R', 'G', 'B'])
+        RGB_table.insert(0, 'X', range(len(RGB_table)))
+    return RGB_table

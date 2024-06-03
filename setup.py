@@ -19,7 +19,7 @@ setup(
     description='This is Akiyama laboratory ( in National Institute of Technology Nagano College ) toolbox library.',
     long_description=open('README.md', encoding='UTF-8').read(),
     long_description_content_type='text/markdown',
-    version='1.0.0',
+    version='1.0.1',
     python_requires='>=3.10.12',
     install_requires=INSTALL_REQUIRES,
     packages=PACKAGES,
