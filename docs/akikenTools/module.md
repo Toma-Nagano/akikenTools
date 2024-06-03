@@ -8,6 +8,7 @@
   - [make_average_img](#make_average_img)
   - [calc_MSE](#calc_mse)
   - [calc_RMSE_table](#calc_rmse_table)
+  - [get_RGB](#get_rgb)
 
 ## 関数リファレンス
 
@@ -62,6 +63,7 @@
 
 # インストールしたライブラリの読み込み
 import akikenTools as aki
+import cv2
 import matplotlib.pyplot as plt
 from google.colab import drive
 
@@ -77,6 +79,7 @@ size = (128, 128)
 img = aki.img_processing(path, trim_range, size)
 
 # 前処理を行った画像を表示する
+cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 plt.imshow(img)
 plt.show()
 ```
@@ -217,7 +220,7 @@ target = '/content/drive/MyDrive/ [ 省略 ]'
 ave_img = aki.make_average_img(path)
 
 # OpenCV ライブラリを使用して平均画像を出力
-cv2.imwrite(target, img)
+cv2.imwrite(target, ave_img)
 ```
 
 </details>
@@ -326,12 +329,13 @@ drive.mount('/content/drive')
 
 # 変数にデータを入力
 path = '/content/drive/MyDrive/ [ 省略 ]'
+target = '/content/drive/MyDrive/ [ 省略 ]'
 
 # 平均画像データの作成
 ave_img = aki.make_average_img(path)
 
 # MSE , RMSE を算出し、得られた表を表示
-aki.calc_RMSE_table(path, ave_img)
+aki.calc_RMSE_table(target, ave_img)
 ```
 
 - Google Colabolatory 環境では、pandas.DataFlame を明示的に表示する関数 ( print( ) 文など ) を用いなくても、自動的に表形式でデータを表示してくれます。
@@ -350,5 +354,65 @@ aki.calc_RMSE_table(path, ave_img)
   # Excel 形式のデータとして出力
   df.to_excel('/content/drive/MyDrive/RMSE_table.xlsx', index = False)
   ```
+
+</details>
+
+### get_RGB
+
+- RGB 画像の特定行 ( 横一列 ) から、RGB 値をそれぞれ取得する関数です。
+- 取得した値は、[ X, R, G, B ] を `columns` とする pandas.DataFrame 型にまとめられます。
+
+**【 引数 】**
+
+| 変数名    | 説明                                                                                           |
+| --------- | ---------------------------------------------------------------------------------------------- |
+| `img`     | RGB 値を取得する画像 ( str / numpy.ndarray : required )                                        |
+| `y`       | 画像から RGB 値を取得する行 ( int : required )                                                 |
+| `convert` | 読み込んだ画像について、BGR 形式から RGB 型式に変換するか ( bool : optional , Default = False) |
+
+**【 返り値 】**
+
+| 変数名      | 説明                                               |
+| ----------- | -------------------------------------------------- |
+| `RGB_table` | X, R, G, B の値を各列に持つ表 ( pandas.DataFrame ) |
+
+**【 エラー 】**
+
+- `ValueError: The specified y coordinate is out of range.`
+
+  引数 `y` が画像の縦幅に比べて大きい、もしくは小さいです。
+
+- `ValueError: The specified data is not in the proper format.`
+
+  引数 `img` がカラー画像データではありません。
+
+<details>
+<summary><strong>【 サンプルコード 】</strong></summary>
+<br>
+
+```python
+# pip コマンドを使用し、GitHub から akikenToolsDev ライブラリをインストール
+!pip install akikenTools@git+https://github.com/Toma-Nagano/akikenTools
+
+# インストールしたライブラリの読み込み
+import akikenTools as aki
+import matplotlib.pyplot as plt
+from google.colab import drive
+
+# GoogleDrive と同期
+drive.mount('/content/drive')
+
+# 変数にデータを入力
+img = '/content/drive/MyDrive/ [ 省略 ]'
+
+# RGB 値を取得
+df = aki.get_RGB(img, 1250)
+
+# RGB 値の変化をグラフに描画
+plt.plot(df['X'], df['R'], c = 'r')
+plt.plot(df['X'], df['G'], c = 'g')
+plt.plot(df['X'], df['B'], c = 'b')
+plt.show()
+```
 
 </details>
